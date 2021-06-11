@@ -90,6 +90,9 @@ func (a *AppServer) handleBadge() http.HandlerFunc {
 			return
 		}
 		writer.Header().Set("Content-Type", "image/svg+xml")
+		writer.Header().Set("Cache-Control", "max-age=0, no-cache, no-store, must-revalidate")
+		writer.Header().Set("Last-Modified", time.Now().Format(time.RFC1123))
+		writer.Header().Set("Expires", time.Now().Add(time.Second).Format(time.RFC1123))
 		workspaceID := strings.TrimPrefix(request.URL.Path, "/badge/")
 		var badge Badge
 		run, err := a.Store.Get(workspaceID)
