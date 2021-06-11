@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -8,39 +9,51 @@ import (
 	"time"
 )
 
+const (
+	serverReadTimeoutSeconds  = 60
+	serverWriteTimeoutSeconds = 60
+)
+
 type AppServer struct {
-	Host        string
+	Addr        string
 	Store       *RunCache
 	server      *http.Server
 	initialized bool
 }
 
-func (a *AppServer) Run() {
+func (a *AppServer) Run() error {
 	if !a.initialized {
 		a.init()
 	}
-	a.server.ListenAndServe()
+	return a.server.ListenAndServe()
+}
+
+func (a *AppServer) Shutdown(ctx context.Context) error {
+	return a.server.Shutdown(ctx)
 }
 
 func (a *AppServer) init() {
 	a.server = &http.Server{
-		Addr:           a.Host,
-		ReadTimeout:    1 * time.Second,
-		WriteTimeout:   1 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-		Handler:        a.routes(),
+		Addr:         a.Addr,
+		WriteTimeout: serverWriteTimeoutSeconds * time.Second,
+		ReadTimeout:  serverReadTimeoutSeconds * time.Second,
+		Handler:      a.routes(),
 	}
 
 	a.initialized = true
 }
 
 func (a *AppServer) routes() http.Handler {
-	r := http.NewServeMux()
+	mux := http.NewServeMux()
 
-	r.HandleFunc("/", a.handleIndex())
-	r.HandleFunc("/badge/", a.handleBadge())
-	r.HandleFunc("/run", a.handleRun())
-	return r
+	mux.HandleFunc("/", a.handleIndex())
+	mux.HandleFunc("/badge/", a.handleBadge())
+	mux.HandleFunc("/run", a.handleRun())
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("request: %s: %s %s", r.RemoteAddr, r.Method, r.URL.Path)
+		mux.ServeHTTP(w, r)
+	})
 }
 
 // Dumb Handler, can be used for readiness and liveliness checks.
@@ -86,6 +99,8 @@ func (a *AppServer) handleBadge() http.HandlerFunc {
 		} else {
 			badge.FromRun(run)
 		}
-		badge.Render(writer)
+		if err := badge.Render(writer); err != nil {
+			log.Printf("error rendering badge: %v", err)
+		}
 	}
 }

@@ -1,28 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="105" height="20" role="img"
-     aria-label="Terraform: {{.Message}}">
-    <linearGradient id="s" x2="0" y2="100%">
-        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
-        <stop offset="1" stop-opacity=".1"/>
-    </linearGradient>
-    <clipPath id="r">
-        <rect width="105" height="20" rx="3" fill="#fff"/>
-    </clipPath>
-    <g clip-path="url(#r)">
-        <rect width="82" height="20" fill="#555"/>
-        <rect x="82" width="23" height="20" fill="#{{.Color}}"/>
-        <rect width="105" height="20" fill="url(#s)"/>
-    </g>
-    <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif"
-       text-rendering="geometricPrecision" font-size="110">
-        <image x="5" y="3" width="14" height="14"
-               xlink:href="data:image/svg+xml;base64,PHN2ZyBmaWxsPSJ3aGl0ZXNtb2tlIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+VGVycmFmb3JtIGljb248L3RpdGxlPjxwYXRoIGQ9Ik0xLjQ0IDB2Ny41NzVsNi41NjEgMy43OVYzLjc4N3ptMjEuMTIgNC4yMjdsLTYuNTYxIDMuNzkxdjcuNTc0bDYuNTYtMy43ODd6TTguNzIgNC4yM3Y3LjU3NWw2LjU2MSAzLjc4N1Y4LjAxOHptMCA4LjQwNXY3LjU3NUwxNS4yOCAyNHYtNy41Nzh6Ii8+PC9zdmc+"/>
-        <text aria-hidden="true" x="505" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)"
-              textLength="550">Terraform
-        </text>
-        <text x="505" y="140" transform="scale(.1)" fill="#fff" textLength="550">Terraform</text>
-        <text aria-hidden="true" x="925" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)"
-              textLength="130">{{.Message}}
-        </text>
-        <text x="925" y="140" transform="scale(.1)" fill="#fff" textLength="130">{{.Message}}</text>
-    </g>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{{.Width}}" height="20">
+    <title>Terraform: {{.Message}}</title>
+    <a href="{{.URL}}">
+        <linearGradient id="s" x2="0" y2="100%">
+            <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+            <stop offset="1" stop-opacity=".1"/>
+        </linearGradient>
+        <clipPath id="r">
+            <rect width="{{.Width}}" height="20" rx="3" fill="#fff"/>
+        </clipPath>
+        <g clip-path="url(#r)">
+            <rect width="82" height="20" fill="#555"/>
+            <rect x="82" width="{{.Width}}" height="20" fill="{{.Color}}"/>
+            <rect width="{{.Width}}" height="20" fill="url(#s)"/>
+        </g>
+        <g fill="#fff" font-family="Verdana,Geneva,DejaVu Sans,sans-serif"
+           text-rendering="geometricPrecision" font-size="110">
+            <image x="5" y="3" width="14" height="14"
+                   xlink:href="data:image/svg+xml;base64,PHN2ZyBmaWxsPSJ3aGl0ZXNtb2tlIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+VGVycmFmb3JtIGljb248L3RpdGxlPjxwYXRoIGQ9Ik0xLjQ0IDB2Ny41NzVsNi41NjEgMy43OVYzLjc4N3ptMjEuMTIgNC4yMjdsLTYuNTYxIDMuNzkxdjcuNTc0bDYuNTYtMy43ODd6TTguNzIgNC4yM3Y3LjU3NWw2LjU2MSAzLjc4N1Y4LjAxOHptMCA4LjQwNXY3LjU3NUwxNS4yOCAyNHYtNy41Nzh6Ii8+PC9zdmc+"/>
+            <text x="220" y="140" transform="scale(.1)" fill="#fff">Terraform</text>
+            <text x="900" y="140" transform="scale(.1)" fill="#fff">{{.Message}}</text>
+        </g>
+    </a>
 </svg>
