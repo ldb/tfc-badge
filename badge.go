@@ -3,8 +3,10 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"golang.org/x/text/width"
 	"html/template"
 	"io"
+	"math"
 )
 
 type Badge struct {
@@ -12,13 +14,18 @@ type Badge struct {
 	Width               int
 }
 
-const MessageWidthMultiplier = 15
+const (
+	MessageWidthMultiplier = 6.5
+	LabelOffset            = 82
+	MessageDefaultWidth    = 180
+	MessageMargin          = 0
+)
 
 var DefaultBadge = Badge{
 	Color:   "#7B42BC",
 	URL:     "https://www.terraform.io/cloud",
 	Message: "unknown",
-	Width:   150,
+	Width:   MessageDefaultWidth,
 }
 
 //go:embed badge.tmpl
@@ -41,8 +48,11 @@ func (b *Badge) FromRun(r *Run) {
 	}
 	b.Color = color
 	b.Message = n.Message
-	b.Width = len(n.Message) * MessageWidthMultiplier
-		b.URL = r.RunURL
+	b.Width = LabelOffset + int(math.Ceil(float64(GetWidthUTF8String(n.Message))*MessageWidthMultiplier)) + MessageMargin
+	if b.Width < MessageDefaultWidth {
+		b.Width = MessageDefaultWidth
+	}
+	b.URL = r.RunURL
 }
 
 // Render renders a Badge into SVG format.
@@ -51,4 +61,18 @@ func (b *Badge) Render(out io.Writer) error {
 		return fmt.Errorf("error rendering badge: %v", err)
 	}
 	return nil
+}
+
+func GetWidthUTF8String(s string) int {
+	size := 0
+	for _, runeValue := range s {
+		p := width.LookupRune(runeValue)
+		if p.Kind() == width.EastAsianWide {
+			size += 2
+			continue
+		}
+		size += 1
+
+	}
+	return size
 }
