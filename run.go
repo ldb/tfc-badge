@@ -5,6 +5,7 @@ type Run struct {
 	PayloadVersion int            `payload_version`
 	RunURL         string         `json:"run_url"`
 	WorkspaceID    string         `json:"workspace_id"`
+	WorkspaceName  string         `json:"workspace_name"`
 	Notifications  []Notification `json:"notifications"`
 }
 

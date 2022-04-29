@@ -33,3 +33,13 @@ func (r *RunCache) Get(key string) (*Run, error) {
 	}
 	return value, nil
 }
+
+func (r *RunCache) List() []*Run {
+	r.RLock()
+	defer r.RUnlock()
+	rr := make([]*Run, 0, len(r.store))
+	for _, r := range r.store {
+		rr = append(rr, r)
+	}
+	return rr
+}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"log"
@@ -17,6 +18,7 @@ const (
 type AppServer struct {
 	Addr        string
 	Store       *RunCache
+	Debug       bool
 	server      *http.Server
 	initialized bool
 }
@@ -71,11 +73,27 @@ func (a *AppServer) handleRun() http.HandlerFunc {
 		}
 		defer request.Body.Close()
 		run := new(Run)
-		if err := json.NewDecoder(request.Body).Decode(run); err != nil {
+		buf := bytes.Buffer{}
+		_, err := buf.ReadFrom(request.Body)
+		if err != nil {
+			log.Printf("error reading body: %v", err)
+			writer.WriteHeader(http.StatusInternalServerError)
+		}
+
+		if a.Debug {
+			log.Printf("[DEBUG] body: %s", buf.String())
+		}
+
+		if err := json.NewDecoder(&buf).Decode(run); err != nil {
 			log.Printf("error decoding request: %var", err)
 			writer.WriteHeader(http.StatusBadRequest)
 			return
 		}
+		if run.WorkspaceID == "" {
+			log.Println("received bogus run notification")
+			return
+		}
+
 		// TODO: Implement HMAC verification.
 		a.Store.Set(run.WorkspaceID, run)
 		log.Printf("stored new run for workspace %s", run.WorkspaceID)
