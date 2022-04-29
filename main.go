@@ -78,6 +78,10 @@ func main() {
 	}
 	log.Println("done shutting down server")
 
+	if *persistence == "" {
+		os.Exit(0)
+	}
+	
 	cacheFile, err := os.OpenFile(*persistence, os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		log.Printf("error opening cache file %s: %v", *persistence, err)
