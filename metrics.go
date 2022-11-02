@@ -2,8 +2,6 @@ package main
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"log"
-	"time"
 )
 
 var runStateDesc = prometheus.NewDesc(
@@ -24,16 +22,10 @@ func (c *MetricsCollector) Collect(ch chan<- prometheus.Metric) {
 	runs := c.Store.List()
 	for _, run := range runs {
 		notification := run.Notifications[0]
-		ts, err := time.Parse(time.RFC3339, notification.RunUpdatedAt)
-		if err != nil {
-			log.Printf("error parsing timestamp of workspace %s for metric collection: %v", run.WorkspaceID, err)
-			continue
-		}
-
 		ch <- prometheus.MustNewConstMetric(
 			runStateDesc,
 			prometheus.CounterValue,
-			float64(ts.Unix()),
+			float64(notification.RunUpdatedAt.Unix()),
 			run.WorkspaceID,
 			run.WorkspaceName,
 			notification.Trigger,

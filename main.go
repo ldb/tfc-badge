@@ -18,6 +18,8 @@ var metricsAddr = flag.String("metrics", ":9080", "specify the address and port 
 var debug = flag.Bool("debug", false, "enable debug log output")
 var persistence = flag.String("file", "", "path to file to store persistent cache in")
 
+const grafanaEnv = "GRAFANA_API_KEY"
+
 func main() {
 	flag.Parse()
 
@@ -36,10 +38,20 @@ func main() {
 		cacheFile.Close()
 	}
 
+	hooks := NewHookRunner()
+
+	grafanaHost, hostOK := os.LookupEnv("GRAFANA_HOST")
+	grafanaKey, keyOK := os.LookupEnv("GRAFANA_API_KEY")
+	if hostOK && keyOK {
+		log.Println("adding Grafana Annotation Hook")
+		hooks.Fn["Grafana Annotation"] = GrafanaAnnotation(grafanaHost, grafanaKey)
+	}
+
 	a := AppServer{
 		Store: store,
 		Debug: *debug,
 		Addr:  *flagAddr,
+		Hook:  hooks.Hook(),
 	}
 
 	mc := &MetricsCollector{
@@ -81,7 +93,7 @@ func main() {
 	if *persistence == "" {
 		os.Exit(0)
 	}
-	
+
 	cacheFile, err := os.OpenFile(*persistence, os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		log.Printf("error opening cache file %s: %v", *persistence, err)

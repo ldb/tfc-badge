@@ -21,6 +21,7 @@ type AppServer struct {
 	Debug       bool
 	server      *http.Server
 	initialized bool
+	Hook        HookFn
 }
 
 func (a *AppServer) Run() error {
@@ -98,6 +99,15 @@ func (a *AppServer) handleRun() http.HandlerFunc {
 		a.Store.Set(run.WorkspaceID, run)
 		log.Printf("stored new run for workspace %s", run.WorkspaceID)
 		writer.WriteHeader(http.StatusOK)
+
+		if a.Hook == nil {
+			return
+		}
+		if err := a.Hook(run); err != nil {
+			log.Printf("error running hook for run %s", run.ID)
+		}
+		log.Printf("successfully ran hooks for run %s", run.ID)
+
 	}
 }
 
