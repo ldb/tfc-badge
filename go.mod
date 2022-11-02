@@ -1,6 +1,6 @@
 module github.com/ldb/tfc-badge
 
-go 1.16
+go 1.19
 
 require (
 	github.com/google/go-cmp v0.5.9 // indirect
