@@ -104,10 +104,10 @@ func (a *AppServer) handleRun() http.HandlerFunc {
 			return
 		}
 		if err := a.Hook(run); err != nil {
-			log.Printf("error running hook for run %s", run.ID)
+			log.Printf("error running hook for run %s: %v", run.ID, err)
+			return
 		}
 		log.Printf("successfully ran hooks for run %s", run.ID)
-
 	}
 }
 
