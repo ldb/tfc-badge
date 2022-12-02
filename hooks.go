@@ -35,10 +35,9 @@ func (h *HookRunner) Hook() HookFn {
 
 var GrafanaAnnotation = func(grafanaHost, grafanaAPIKey string) func(r *Run) error {
 	type grafanaAnnotationPayload struct {
-		Time    int64    `json:"time"`
-		TimeEnd int64    `json:"timeEnd"`
-		Tags    []string `json:"tags"`
-		Text    string   `json:"text"`
+		Time int64    `json:"time"`
+		Tags []string `json:"tags"`
+		Text string   `json:"text"`
 	}
 
 	return func(r *Run) error {
@@ -53,9 +52,8 @@ var GrafanaAnnotation = func(grafanaHost, grafanaAPIKey string) func(r *Run) err
 		}
 
 		payload := grafanaAnnotationPayload{
-			Time:    r.CreatedAt.UnixMilli(),
-			TimeEnd: r.Notifications[0].RunUpdatedAt.UnixMilli(),
-			Text:    fmt.Sprintf("%s workspace %q: %q", r.Notifications[0].RunStatus, r.WorkspaceName, r.Message),
+			Time: r.Notifications[0].RunUpdatedAt.UnixMilli(),
+			Text: fmt.Sprintf("%s workspace %q: %q", r.Notifications[0].RunStatus, r.WorkspaceName, r.Message),
 			Tags: []string{
 				"tfc-badge",
 				fmt.Sprintf("status:%s", r.Notifications[0].RunStatus),
