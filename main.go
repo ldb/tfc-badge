@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
@@ -25,17 +26,22 @@ func main() {
 
 	store := NewCache()
 	if *persistence != "" {
-		cacheFile, err := os.OpenFile(*persistence, os.O_RDWR|os.O_CREATE, 0755)
+		err := func() error {
+			cacheFile, err := os.OpenFile(*persistence, os.O_RDWR|os.O_CREATE, 0644)
+			if err != nil {
+				return fmt.Errorf("error opening cache file %s: %v", *persistence, err)
+			}
+			if err := store.Restore(cacheFile); err != nil {
+				return fmt.Errorf("error restoring cache from file %s: %v", *persistence, err)
+			}
+			if len(store.List()) > 0 {
+				log.Printf("restored cache %d entries", len(store.List()))
+			}
+			return cacheFile.Close()
+		}()
 		if err != nil {
-			log.Printf("error opening cache file %s: %v", *persistence, err)
+			log.Printf("error initialising persistent cache: %v", err)
 		}
-		if err := store.Restore(cacheFile); err != nil {
-			log.Printf("error restoring cache from file %s: %v", *persistence, err)
-		}
-		if len(store.List()) > 0 {
-			log.Printf("restored cache %d entries", len(store.List()))
-		}
-		cacheFile.Close()
 	}
 
 	hooks := NewHookRunner()
