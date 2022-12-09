@@ -20,8 +20,6 @@ var metricsAddr = flag.String("metrics", ":9080", "specify the address and port 
 var debug = flag.Bool("debug", false, "enable debug log output")
 var persistence = flag.String("file", "", "path to file to store persistent cache in")
 
-const grafanaEnv = "GRAFANA_API_KEY"
-
 func main() {
 	flag.Parse()
 
