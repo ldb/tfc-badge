@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"syscall"
 	"time"
 )
@@ -27,9 +28,20 @@ func main() {
 	store := NewCache()
 	if *persistence != "" {
 		err := func() error {
-			cacheFile, err := os.OpenFile(*persistence, os.O_RDWR|os.O_CREATE, 0644)
+			cacheFile, err := os.Open(*persistence)
 			if err != nil {
-				return fmt.Errorf("error opening cache file %s: %v", *persistence, err)
+				if !os.IsNotExist(err) {
+					return fmt.Errorf("error opening file: %v", err)
+				}
+				p := path.Dir(*persistence)
+				if err := os.MkdirAll(p, 0666); err != nil {
+					return fmt.Errorf("error creating path %s: %v", p, err)
+				}
+				f, err := os.Create(*persistence)
+				if err != nil {
+					return fmt.Errorf("error creating file %s: %v", *persistence, err)
+				}
+				cacheFile = f
 			}
 			if err := store.Restore(cacheFile); err != nil {
 				return fmt.Errorf("error restoring cache from file %s: %v", *persistence, err)
